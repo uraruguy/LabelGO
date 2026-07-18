@@ -101,14 +101,34 @@ export const PROJECTS: Project[] = [
 ];
 
 export const EVERYDAY_SOUNDS_TASKS: LabelTask[] = [
-  { id: 't1', answer: 'dog', clipLabel: 'A dog barking in a backyard' },
-  { id: 't2', answer: 'baby', clipLabel: 'A baby crying softly' },
-  { id: 't3', answer: 'doorbell', clipLabel: 'A doorbell chime' },
-  { id: 't4', answer: 'dog', clipLabel: 'A small dog yapping' },
-  { id: 't5', answer: 'doorbell', clipLabel: 'A two-tone doorbell' },
-  { id: 't6', answer: 'baby', clipLabel: 'A baby fussing' },
-  { id: 't7', answer: 'dog', clipLabel: 'A large dog barking' },
-  { id: 't8', answer: 'doorbell', clipLabel: 'An apartment buzzer' },
+  {
+    id: 't1',
+    answer: 'dog',
+    clipLabel: 'A dog barking in a backyard',
+    duration: 4,
+    waveformSeed: 17,
+  },
+  { id: 't2', answer: 'baby', clipLabel: 'A baby crying softly', duration: 5, waveformSeed: 42 },
+  { id: 't3', answer: 'doorbell', clipLabel: 'A doorbell chime', duration: 3, waveformSeed: 8 },
+  { id: 't4', answer: 'dog', clipLabel: 'A small dog yapping', duration: 3, waveformSeed: 91 },
+  {
+    id: 't5',
+    answer: 'baby',
+    clipLabel: 'A muffled sound behind traffic',
+    duration: 5,
+    waveformSeed: 55,
+    ambiguous: true,
+  },
+  { id: 't6', answer: 'baby', clipLabel: 'A baby fussing', duration: 4, waveformSeed: 23 },
+  {
+    id: 't7',
+    answer: 'dog',
+    clipLabel: 'A large dog barking',
+    duration: 4,
+    waveformSeed: 66,
+    isQualityCheck: true,
+  },
+  { id: 't8', answer: 'doorbell', clipLabel: 'An apartment buzzer', duration: 3, waveformSeed: 34 },
 ];
 
 export const INITIAL_ACTIVITY: ActivityDay[] = [

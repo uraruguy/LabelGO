@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { Dog, Baby, Bell, type LucideIcon } from 'lucide-react-native';
-import type { SoundAnswer } from '@/lib/types';
+import type { SoundAnswer, SoundResponse } from '@/lib/types';
 import { colors } from '@/lib/theme';
 import { selectionTick } from '@/lib/haptics';
 
@@ -28,7 +28,7 @@ interface AnswerButtonProps {
   answer: SoundAnswer;
   state: State;
   disabled?: boolean;
-  onPress: (answer: SoundAnswer) => void;
+  onPress: (answer: SoundResponse) => void;
 }
 
 export function AnswerButton({ answer, state, disabled, onPress }: AnswerButtonProps) {
