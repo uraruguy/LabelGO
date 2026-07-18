@@ -1,160 +1,53 @@
-# Welcome to your Bilt project
-
-[![Built with Bilt](https://img.shields.io/endpoint?url=https%3A%2F%2Fapp.bilt.me%2Fapi%2Fbadge)](https://bilt.me)
-
-## Project info
-
-**Preview URL**: https://app.bilt.me/project/278eac08-afb8-481b-b774-27a2381e69c7/preview
-
-**Project ID**: `278eac08-afb8-481b-b774-27a2381e69c7`
-
-## How can I edit this app?
-
-There are several ways of editing your application.
-
-**Use Bilt**
-
-Simply visit your [Bilt Project](https://app.bilt.me/agent/278eac08-afb8-481b-b774-27a2381e69c7) and start sending messages. Describe what you want to change, add, or fix in natural language.
-
-Changes made via Bilt are instant - just send a message and your app updates.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can export the source code from Bilt and make changes directly.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Export and clone your Bilt project.
-# (Download source from Bilt or connect to your git repo)
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm install
-
-# Step 4: Start the Expo development server.
-npx expo start
-```
-
-Scan the QR code with Expo Go on your phone to see your app running locally.
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- React Native
-- Expo
-- TypeScript
-- AsyncStorage (local data persistence)
-- Expo Router (navigation)
-
-All generated automatically by Bilt from your natural language instructions.
-
-## How can I test this project?
-
-**Option 1: Instant Preview (Recommended)**
-
-Open the preview URL in your browser: `https://app.bilt.me/project/278eac08-afb8-481b-b774-27a2381e69c7/preview`
-
-Scan the QR code with Expo Go ([iOS](https://apps.apple.com/app/expo-go/id982107779) | [Android](https://play.google.com/store/apps/details?id=host.exp.exponent)) on your phone.
-
-**Option 2: Run Locally**
-
-```sh
-npm install
-npx expo start
-```
-
-Then scan the QR code with Expo Go.
-
-## How can I deploy this project?
-
-Go to your [Bilt Project](https://app.bilt.me/agent/278eac08-afb8-481b-b774-27a2381e69c7), after that go to Settings -> App Store.
-
-### Deploy with Bilt
-
-Simply send a message to your Bilt project: "Deploy this app to production"
-
-Bilt will handle the build and provide you with download links or submission-ready builds.
-
-## How can I make changes to my app?
-
-**Via Bilt (Easiest)**
-
-Visit your [Bilt Project](https://app.bilt.me/agent/278eac08-afb8-481b-b774-27a2381e69c7) and send a message describing what you want:
-
-- "Add a dark mode toggle"
-- "Change the button color to blue"
-- "Add a new screen for user settings"
-- "Fix the navigation bar spacing"
-
-Bilt understands natural language and updates your app automatically.
-
-**Via Code**
-
-Export the source, make changes in your IDE, and test locally with `npx expo start`.
-
-## Can I use this with the MCP protocol?
-
-Yes! Bilt is available as a remote MCP server at `https://mcp.bilt.me/mcp`.
-
-Connect any MCP-compatible AI agent (Claude Desktop, OpenClaw, etc.) to programmatically build and modify mobile apps.
-
-**Example MCP integration:**
-
-```json
-{
-  "mcpServers": {
-    "bilt": {
-      "transport": {
-        "type": "sse",
-        "url": "https://mcp.bilt.me/mcp/sse",
-        "headers": {
-          "Authorization": "Bearer YOUR_API_KEY"
-        }
-      }
-    }
-  }
-}
-```
-
-Read more:
-
-- [Bilt MCP Documentation](https://bilt.me/docs)
-- [MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.buildingapplications%2Fmcp/versions/latest)
-
-## Need help?
-
-- 📚 [Bilt Documentation](https://bilt.me/docs)
-- 💬 [Discord Community](https://discord.gg/3FqNgmSYdZ)
-- 🐦 [Twitter Updates](https://twitter.com/biltmeanapp)
-- 📧 Email: support@bilt.me
-
----
-
 <div align="center">
 
-**Built by AI. No code required.** ✨
+# LabelGO
 
-[Try Bilt](https://bilt.me) • [View Docs](https://bilt.me/docs) • [Docs MCP Server](https://bilt.me/docs/mcp)
+### Turn spare moments into high-quality data — and earnings.
+
+**LabelGO makes data labeling as easy as answering a question on your phone.**
+People can contribute wherever they are, while companies get the human-verified data their AI needs.
 
 </div>
+
+<br />
+
+<p align="center">
+  <img src="assets/readme/choose-your-moment.png" width="30%" alt="LabelGO lets contributors choose a task for the moment they are in" />
+  <img src="assets/readme/label-a-sound.png" width="30%" alt="A simple LabelGO audio-labeling task" />
+  <img src="assets/readme/progress-and-trust.png" width="30%" alt="A contributor's LabelGO quality and achievements" />
+</p>
+
+## The opportunity hiding in everyday time
+
+People spend countless small moments waiting, commuting, or walking with headphones on. Most of that time disappears without creating value. At the same time, companies building AI face a persistent bottleneck: obtaining reliable, human-labeled data at scale.
+
+LabelGO connects both sides of that equation.
+
+## One app. Two problems solved.
+
+### For contributors: make spare time count
+
+Open LabelGO and start in seconds. No complicated workflow, no specialist setup—just short, clear tasks matched to the moment. Label a sound while waiting, contribute on the commute, or complete tasks hands-free while walking with headphones.
+
+Each completed task builds a visible record of quality, reliability, achievements, and earnings. Contributors do meaningful work, grow their reputation, and turn previously idle time into an opportunity.
+
+### For companies: data they can trust
+
+Companies get a flexible, engaged community of contributors producing human-verified labels. LabelGO's quality signals and contributor progress make reliability visible, giving teams a better path from raw data to AI-ready datasets.
+
+## What makes LabelGO different
+
+- **Frictionless from the first tap.** Contributors can begin labeling without learning a complex tool.
+- **Built for real life.** Tasks adapt to whether someone is waiting, commuting, in a quiet room, or going hands-free.
+- **Human quality is part of the experience.** Clear progress, qualifications, and achievement signals help reward care—not just speed.
+- **A win for both sides.** Contributors gain an accessible way to earn; companies gain the labeled data they need to build better AI.
+
+## A labeling experience people actually want to return to
+
+LabelGO turns repetitive data work into a lightweight, motivating routine: listen, identify, contribute, improve. The interface keeps each task focused and approachable, while progress and streaks make every contribution feel tangible.
+
+## Our vision
+
+We believe the next generation of AI data collection should not feel like a barrier between people and opportunity. It should fit naturally into everyday life.
+
+**LabelGO transforms spare moments into trusted human insight—anywhere, and even hands-free.**
