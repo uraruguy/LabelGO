@@ -1,42 +1,54 @@
-import { Home } from 'lucide-react-native';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useThemeColor } from 'heroui-native';
-import { useUniwind } from 'uniwind';
+import { Home, LayoutGrid, Wallet, User } from 'lucide-react-native';
+import { colors } from '@/lib/theme';
 
 export default function TabLayout() {
-  const { theme } = useUniwind();
-  const [background, foreground, border, accent, muted] = useThemeColor([
-    'background',
-    'foreground',
-    'border',
-    'accent',
-    'muted',
-  ]);
-
   return (
     <>
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      {/* eslint-disable-next-line react/style-prop-object -- expo-status-bar's `style` prop is a string theme enum ("dark"/"light"/"auto"), not a React Native style object */}
+      <StatusBar style="dark" />
       <Tabs
         screenOptions={{
-          headerStyle: { backgroundColor: background },
-          headerTintColor: foreground,
-          headerTitleStyle: { color: foreground },
-          headerShadowVisible: false,
-          sceneStyle: { backgroundColor: background },
+          headerShown: false,
+          sceneStyle: { backgroundColor: colors.canvas },
           tabBarStyle: {
-            backgroundColor: background,
-            borderTopColor: border,
+            backgroundColor: colors.card,
+            borderTopColor: colors.hairline,
+            height: 84,
+            paddingTop: 8,
           },
-          tabBarActiveTintColor: accent,
-          tabBarInactiveTintColor: muted,
+          tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+          tabBarActiveTintColor: colors.purple,
+          tabBarInactiveTintColor: colors.inkSoft,
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ color, size }) => <Home color={color} size={size ?? 24} />,
+            tabBarIcon: ({ color, size }) => <Home color={color} size={size ?? 22} />,
+          }}
+        />
+        <Tabs.Screen
+          name="tasks"
+          options={{
+            title: 'Tasks',
+            tabBarIcon: ({ color, size }) => <LayoutGrid color={color} size={size ?? 22} />,
+          }}
+        />
+        <Tabs.Screen
+          name="earnings"
+          options={{
+            title: 'Earnings',
+            tabBarIcon: ({ color, size }) => <Wallet color={color} size={size ?? 22} />,
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, size }) => <User color={color} size={size ?? 22} />,
           }}
         />
       </Tabs>

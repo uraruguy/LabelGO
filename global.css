@@ -38,3 +38,47 @@
  */
 
 @source './node_modules/heroui-native/lib';
+
+/*
+ * LabelGo brand palette
+ * Background #F6F7FB · Text #11131A · Secondary #6B7180
+ * Purple #625BF6 · Mint #21D6A2 · Reward #FFB85C · Error #EF6A72
+ */
+@theme {
+  --color-canvas: oklch(0.974 0.004 265);
+  --color-ink: oklch(0.196 0.02 271);
+  --color-ink-soft: oklch(0.53 0.02 268);
+  --color-purple: oklch(0.588 0.212 281);
+  --color-purple-soft: oklch(0.94 0.04 281);
+  --color-mint: oklch(0.79 0.15 168);
+  --color-mint-soft: oklch(0.95 0.06 168);
+  --color-reward: oklch(0.82 0.13 71);
+  --color-reward-soft: oklch(0.96 0.05 71);
+  --color-danger-accent: oklch(0.68 0.17 17);
+  --color-card: oklch(1 0 0);
+  --color-hairline: oklch(0.93 0.006 265);
+
+  --radius-xl2: 28px;
+}
+
+@layer theme {
+  :root {
+    @variant light {
+      --accent: oklch(0.588 0.212 281);
+      --accent-foreground: oklch(0.99 0 0);
+      --background: oklch(0.974 0.004 265);
+      --foreground: oklch(0.196 0.02 271);
+      --muted: oklch(0.53 0.02 268);
+      --focus: var(--accent);
+    }
+
+    @variant dark {
+      --accent: oklch(0.588 0.212 281);
+      --accent-foreground: oklch(0.99 0 0);
+      --background: oklch(0.974 0.004 265);
+      --foreground: oklch(0.196 0.02 271);
+      --muted: oklch(0.53 0.02 268);
+      --focus: var(--accent);
+    }
+  }
+}
