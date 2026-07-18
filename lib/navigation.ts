@@ -7,7 +7,7 @@ export function openProject(projectId: string, context?: ContextId) {
 
 export function startSession(mode: SessionMode, projectId: string) {
   if (mode === 'handsfree') {
-    router.push({ pathname: '/session/handsfree', params: { projectId } });
+    router.push({ pathname: '/session/handsfree-prep', params: { projectId } });
   } else {
     router.push({ pathname: '/session/tap', params: { projectId, mode } });
   }
@@ -19,6 +19,7 @@ export function openComplete(params: {
   correct: string;
   credits: string;
   quality: string;
+  voice?: string;
 }) {
   router.replace({ pathname: '/session/complete', params });
 }

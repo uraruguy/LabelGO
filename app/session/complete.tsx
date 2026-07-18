@@ -20,6 +20,7 @@ import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { colors } from '@/lib/theme';
 import { notifySuccess } from '@/lib/haptics';
+import { speak } from '@/lib/speech';
 
 function FloatingToken({ delay, x, size }: { delay: number; x: number; size: number }) {
   const p = useSharedValue(0);
@@ -51,6 +52,7 @@ export default function SessionComplete() {
     correct: string;
     credits: string;
     quality: string;
+    voice: string;
   }>();
 
   const answered = Number(params.answered ?? 0);
@@ -64,12 +66,15 @@ export default function SessionComplete() {
 
   useEffect(() => {
     notifySuccess();
+    if (params.voice === '1') {
+      speak(`Session complete. You labeled ${answered} sounds and earned ${credits} credits.`);
+    }
     ringScale.value = withTiming(1, { duration: 400 });
     checkScale.value = withDelay(
       200,
       withSequence(withSpring(1.2, { damping: 8 }), withSpring(1, { damping: 12 })),
     );
-  }, [checkScale, ringScale]);
+  }, [checkScale, ringScale, params.voice, answered, credits]);
 
   const checkStyle = useAnimatedStyle(() => ({ transform: [{ scale: checkScale.value }] }));
   const ringStyle = useAnimatedStyle(() => ({

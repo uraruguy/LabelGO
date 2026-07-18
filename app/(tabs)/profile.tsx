@@ -3,7 +3,6 @@ import { router } from 'expo-router';
 import {
   MapPin,
   Languages,
-  Award,
   Sliders,
   Accessibility,
   ShieldCheck,
@@ -13,8 +12,10 @@ import {
   ChevronRight,
   Flame,
   CheckCircle2,
+  Mic,
   type LucideIcon,
 } from 'lucide-react-native';
+import { Switch } from 'heroui-native';
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { QualityRing } from '@/components/QualityRing';
 import { QUALIFICATIONS } from '@/lib/mockData';
@@ -55,14 +56,17 @@ function SectionRow({
 }
 
 export default function ProfileScreen() {
-  const { qualityScore, tasksCompleted, streak, resetDemo } = useAppStore(
-    useShallow((s) => ({
-      qualityScore: s.qualityScore,
-      tasksCompleted: s.tasksCompleted,
-      streak: s.streak,
-      resetDemo: s.resetDemo,
-    })),
-  );
+  const { qualityScore, tasksCompleted, streak, resetDemo, demoVoiceSim, setDemoVoiceSim } =
+    useAppStore(
+      useShallow((s) => ({
+        qualityScore: s.qualityScore,
+        tasksCompleted: s.tasksCompleted,
+        streak: s.streak,
+        resetDemo: s.resetDemo,
+        demoVoiceSim: s.demoVoiceSim,
+        setDemoVoiceSim: s.setDemoVoiceSim,
+      })),
+    );
 
   const doReset = () => {
     tapMedium();
@@ -158,8 +162,29 @@ export default function ProfileScreen() {
           />
           <View className="bg-hairline h-px" />
           <SectionRow icon={ShieldCheck} title="Privacy" subtitle="Data usage and consent" />
-          <View className="bg-hairline h-px" />
-          <SectionRow icon={Award} title="Demo settings" subtitle="Hackathon options" />
+        </View>
+
+        {/* Demo settings */}
+        <Text className="text-ink mt-6 mb-2 text-lg font-extrabold">Demo settings</Text>
+        <View className="bg-card border-hairline mt-1 rounded-[24px] border">
+          <View className="flex-row items-center gap-3 px-4 py-3.5">
+            <View className="bg-canvas h-9 w-9 items-center justify-center rounded-xl">
+              <Mic size={18} color={colors.purple} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-ink text-sm font-semibold">Demo voice simulation</Text>
+              <Text className="text-ink-soft text-xs">
+                Runs hands-free with a scripted voice sequence so the demo always works
+              </Text>
+            </View>
+            <Switch
+              isSelected={demoVoiceSim}
+              onSelectedChange={(v) => {
+                tapMedium();
+                setDemoVoiceSim(v);
+              }}
+            />
+          </View>
         </View>
 
         {/* Reset */}

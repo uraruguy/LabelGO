@@ -22,11 +22,14 @@ interface AppState {
   weekCredits: number;
   activity: ActivityDay[];
   selectedContext: ContextId;
+  /** When on, hands-free mode uses a scripted voice sequence so the demo always works. */
+  demoVoiceSim: boolean;
   hydrated: boolean;
 
   setOnboarded: (value: boolean) => void;
   selectContext: (id: ContextId) => void;
   completeSession: (result: SessionResult) => void;
+  setDemoVoiceSim: (value: boolean) => void;
   resetDemo: () => void;
   setHydrated: () => void;
 }
@@ -41,6 +44,7 @@ const DEFAULTS = {
   weekCredits: 126,
   activity: INITIAL_ACTIVITY,
   selectedContext: 'waiting' as ContextId,
+  demoVoiceSim: true,
 };
 
 export const useAppStore = create<AppState>()(
@@ -77,6 +81,7 @@ export const useAppStore = create<AppState>()(
           };
         }),
       resetDemo: () => set({ ...DEFAULTS, onboarded: true }),
+      setDemoVoiceSim: (value) => set({ demoVoiceSim: value }),
       setHydrated: () => set({ hydrated: true }),
     }),
     {

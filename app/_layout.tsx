@@ -154,8 +154,12 @@ export default function RootLayout() {
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
           />
           <Stack.Screen
-            name="session/handsfree"
+            name="session/handsfree-prep"
             options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
+            name="session/handsfree"
+            options={{ presentation: 'fullScreenModal', animation: 'fade' }}
           />
           <Stack.Screen
             name="session/complete"
