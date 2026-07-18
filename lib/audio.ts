@@ -13,12 +13,26 @@ async function ensureAudioMode() {
   if (audioModeReady) return;
   try {
     // Allow playback even if the device is on silent (iOS) — important for a
-    // listening demo. Failure here is non-fatal.
-    await setAudioModeAsync({ playsInSilentMode: true });
+    // listening demo. `shouldPlayInBackground: false` keeps the session in the
+    // standard playback category so the clip routes to the main speaker at full
+    // volume. Failure here is non-fatal.
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: false,
+      interruptionMode: 'mixWithOthers',
+    });
   } catch {
     // ignore — playback still works with default mode
   }
   audioModeReady = true;
+}
+
+/**
+ * Prime the audio session as early as possible (e.g. on app start) so the very
+ * first clip on iOS routes correctly instead of being silently dropped.
+ */
+export function primeAudio() {
+  void ensureAudioMode();
 }
 
 function getPlayer(source: string): AudioPlayer {

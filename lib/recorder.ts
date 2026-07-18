@@ -126,8 +126,13 @@ class NativeRecorder {
     try {
       await recorder.stop();
       const uri = recorder.uri;
-      // Restore playback-only mode after recording.
-      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      // Restore playback-only mode after recording so clips route to the main
+      // speaker at full volume (recording routes to the earpiece on iOS).
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: false,
+        interruptionMode: 'mixWithOthers',
+      });
       if (!uri) return null;
       return { data: uri, mimeType: 'audio/m4a', platform: 'native' };
     } catch {

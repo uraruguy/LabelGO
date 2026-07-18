@@ -148,14 +148,16 @@ export default function TapSession() {
   };
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} className="bg-canvas flex-1">
-      {/* Header */}
-      <View className="flex-row items-center gap-3 px-5 py-2">
+    <SafeAreaView edges={['bottom']} className="bg-canvas flex-1">
+      {/* Header — pt-safe clears the notch/Dynamic Island even inside the
+          iOS fullScreenModal, where the safe-area top edge can report 0. */}
+      <View className="pt-safe-offset-3 flex-row items-center gap-3 px-5 pb-2">
         <Pressable
           onPress={() => {
             tapLight();
             setLeaveOpen(true);
           }}
+          hitSlop={10}
           className="bg-card border-hairline h-10 w-10 items-center justify-center rounded-full border"
         >
           <X size={20} color={colors.ink} />

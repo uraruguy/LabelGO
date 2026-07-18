@@ -186,13 +186,13 @@ export async function transcribe(recording: RecordingResult): Promise<string | n
       const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
       form.append('file', blob, `answer.${ext}`);
     } else {
-      // React Native FormData accepts { uri, name, type }.
+      // React Native's FormData implementation accepts a { uri, name, type }
+      // file part in place of a Blob on this platform (see global.d.ts).
       form.append('file', {
         uri: recording.data,
         name: 'answer.m4a',
         type: recording.mimeType,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-type-assertion
-      } as any);
+      });
     }
 
     const res = await fetch('https://api.elevenlabs.io/v1/speech-to-text/convert', {

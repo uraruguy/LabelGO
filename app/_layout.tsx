@@ -27,6 +27,7 @@ import { registerServiceWorker } from '@/lib/registerServiceWorker';
 import { reportErrorToParent } from '@/lib/reportPreviewError';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { Toast } from '@/components/Toast';
+import { primeAudio } from '@/lib/audio';
 
 /**
  * Custom ErrorBoundary that reports React render errors to the parent window (Bilt preview iframe)
@@ -127,6 +128,11 @@ export default function RootLayout() {
 
   useEffect(() => {
     registerServiceWorker();
+  }, []);
+
+  // Prime the iOS/Android audio session early so the first session clip plays.
+  useEffect(() => {
+    primeAudio();
   }, []);
 
   useEffect(() => {
