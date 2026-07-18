@@ -218,9 +218,14 @@ export default function HomeScreen() {
           )}
 
           {done ? (
-            <View className="bg-mint-soft mt-5 flex-row items-center justify-center gap-2 rounded-2xl py-4">
-              <Check size={18} color={colors.mint} strokeWidth={3} />
-              <Text className="text-mint text-base font-bold">Everyday Sounds complete</Text>
+            <View className="mt-5 gap-3">
+              <View className="bg-mint-soft flex-row items-center justify-center gap-2 rounded-2xl py-3.5">
+                <Check size={18} color={colors.mint} strokeWidth={3} />
+                <Text className="text-mint text-base font-bold">Everyday Sounds complete</Text>
+              </View>
+              <Button variant="secondary" size="lg" onPress={start} className="rounded-2xl">
+                <Button.Label>Practice again</Button.Label>
+              </Button>
             </View>
           ) : (
             <Button variant="primary" size="lg" onPress={start} className="mt-5 rounded-2xl">
