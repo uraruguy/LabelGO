@@ -198,7 +198,8 @@ export const QUALIFICATIONS = [
   { id: 'advanced', name: 'Advanced Evaluation', status: 'Locked' as const },
 ];
 
-export const RECENT_ACTIVITY: EarningActivity[] = [
+/** Seed history shown before the user completes any live session this run. */
+export const SEED_ACTIVITY: EarningActivity[] = [
   { id: 'a1', label: 'Everyday Sounds', credits: 32, when: 'Today', kind: 'session' },
   { id: 'a2', label: 'Voice Quality Check', credits: 12, when: 'Yesterday', kind: 'session' },
   { id: 'a3', label: 'Product Match', credits: 24, when: 'Thursday', kind: 'session' },
@@ -231,3 +232,19 @@ export const ACHIEVEMENTS: Achievement[] = [
     earned: true,
   },
 ];
+
+/**
+ * Projects with the Everyday Sounds row projected from live demo state so the
+ * Tasks screen, Home card, and progress indicators all agree.
+ */
+export function projectsWithProgress(everydaySoundsCompleted: number): Project[] {
+  return PROJECTS.map((project) => {
+    if (project.id !== 'everyday-sounds') return project;
+    const done = everydaySoundsCompleted >= project.taskCount;
+    return {
+      ...project,
+      completedTasks: everydaySoundsCompleted,
+      status: done ? 'completed' : everydaySoundsCompleted > 0 ? 'inProgress' : 'recommended',
+    };
+  });
+}

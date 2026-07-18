@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { LinearGradient } from '@/components/ui/primitives/LinearGradient';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
-import { REWARD_OPTIONS, RECENT_ACTIVITY } from '@/lib/mockData';
+import { REWARD_OPTIONS } from '@/lib/mockData';
 import type { ActivityDay, EarningActivity } from '@/lib/types';
 import { useAppStore } from '@/lib/store';
 import { colors } from '@/lib/theme';
@@ -90,7 +90,7 @@ function ActivityRow({ item }: { item: EarningActivity }) {
 }
 
 export default function EarningsScreen() {
-  const { credits, todayCredits, weekCredits, tasksCompleted, qualityScore, activity } =
+  const { credits, todayCredits, weekCredits, tasksCompleted, qualityScore, activity, history } =
     useAppStore(
       useShallow((s) => ({
         credits: s.credits,
@@ -99,6 +99,7 @@ export default function EarningsScreen() {
         tasksCompleted: s.tasksCompleted,
         qualityScore: s.qualityScore,
         activity: s.activity,
+        history: s.history,
       })),
     );
   const [tab, setTab] = useState<'rewards' | 'activity'>('rewards');
@@ -208,7 +209,7 @@ export default function EarningsScreen() {
             {/* Recent activity */}
             <Text className="text-ink mt-6 mb-1 text-lg font-extrabold">Recent activity</Text>
             <View className="bg-card border-hairline mt-2 rounded-[24px] border px-4 py-1">
-              {RECENT_ACTIVITY.map((item, i) => (
+              {history.map((item, i) => (
                 <View key={item.id}>
                   {i > 0 ? <View className="bg-hairline h-px" /> : null}
                   <ActivityRow item={item} />

@@ -11,6 +11,7 @@ import {
   HelpCircle,
   X,
   Info,
+  Check,
 } from 'lucide-react-native';
 import { Button } from 'heroui-native';
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
@@ -19,7 +20,7 @@ import { StatCard } from '@/components/StatCard';
 import { CreditBadge } from '@/components/CreditBadge';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { ProgressBar } from '@/components/ProgressBar';
-import { CONTEXTS, PROJECTS, CONTINUE_PROJECT } from '@/lib/mockData';
+import { CONTEXTS, CONTINUE_PROJECT, projectsWithProgress } from '@/lib/mockData';
 import { useAppStore } from '@/lib/store';
 import { colors } from '@/lib/theme';
 import { openProject, startSession } from '@/lib/navigation';
@@ -38,18 +39,51 @@ export default function HomeScreen() {
   const streak = useAppStore((s) => s.streak);
   const selectedContext = useAppStore((s) => s.selectedContext);
   const selectContext = useAppStore((s) => s.selectContext);
+  const everydaySoundsCompleted = useAppStore((s) => s.everydaySoundsCompleted);
   const [helpOpen, setHelpOpen] = useState(false);
 
   const context = useMemo(
     () => CONTEXTS.find((c) => c.id === selectedContext) ?? CONTEXTS[0],
     [selectedContext],
   );
-  const featured = PROJECTS[0];
+  const featured = useMemo(
+    () => projectsWithProgress(everydaySoundsCompleted)[0],
+    [everydaySoundsCompleted],
+  );
+  const done = featured.completedTasks >= featured.taskCount;
+  const inProgress = featured.completedTasks > 0 && !done;
   const messageAccent = MESSAGE_ACCENT[context.accent];
+
+  // Continue card prefers a live in-progress Everyday Sounds session, else the
+  // seeded Voice Quality Check placeholder.
+  const continueCard = inProgress
+    ? {
+        name: featured.name,
+        completed: featured.completedTasks,
+        total: featured.taskCount,
+        credits: (featured.taskCount - featured.completedTasks) * 4,
+        resume: true,
+      }
+    : {
+        name: CONTINUE_PROJECT.name,
+        completed: CONTINUE_PROJECT.completed,
+        total: CONTINUE_PROJECT.total,
+        credits: CONTINUE_PROJECT.credits,
+        resume: false,
+      };
 
   const start = () => {
     tapMedium();
     startSession(context.mode, featured.id);
+  };
+
+  const onContinue = () => {
+    if (continueCard.resume) {
+      tapMedium();
+      startSession(context.mode, featured.id);
+    } else {
+      openProject(CONTINUE_PROJECT.id);
+    }
   };
 
   return (
@@ -144,53 +178,78 @@ export default function HomeScreen() {
           className="bg-card border-hairline mt-4 rounded-[24px] border p-5"
         >
           <View className="flex-row items-center justify-between">
-            <View className="bg-purple-soft rounded-full px-2.5 py-1">
-              <Text className="text-purple text-[11px] font-bold">RECOMMENDED</Text>
-            </View>
+            {done ? (
+              <View className="bg-mint-soft flex-row items-center gap-1.5 rounded-full px-2.5 py-1">
+                <Check size={13} color={colors.mint} strokeWidth={3} />
+                <Text className="text-mint text-[11px] font-bold">COMPLETED TODAY</Text>
+              </View>
+            ) : (
+              <View className="bg-purple-soft rounded-full px-2.5 py-1">
+                <Text className="text-purple text-[11px] font-bold">
+                  {inProgress ? 'IN PROGRESS' : 'RECOMMENDED'}
+                </Text>
+              </View>
+            )}
             <CreditBadge amount={featured.credits} />
           </View>
           <Text className="text-ink mt-3 text-xl font-extrabold">{featured.name}</Text>
           <Text className="text-ink-soft mt-1 text-sm">{featured.description}</Text>
 
-          <View className="mt-4 flex-row flex-wrap gap-2">
-            {[
-              `${featured.taskCount} tasks`,
-              `About ${featured.estMinutes} minutes`,
-              `${featured.credits / featured.taskCount} credits per task`,
-              'Beginner friendly',
-            ].map((chip) => (
-              <View key={chip} className="bg-canvas rounded-full px-3 py-1.5">
-                <Text className="text-ink-soft text-xs font-semibold">{chip}</Text>
-              </View>
-            ))}
-          </View>
+          {inProgress ? (
+            <View className="mt-4">
+              <ProgressBar progress={featured.completedTasks / featured.taskCount} />
+              <Text className="text-ink-soft mt-2 text-xs font-semibold">
+                {featured.completedTasks} of {featured.taskCount} labeled
+              </Text>
+            </View>
+          ) : (
+            <View className="mt-4 flex-row flex-wrap gap-2">
+              {[
+                `${featured.taskCount} tasks`,
+                `About ${featured.estMinutes} minutes`,
+                `${featured.credits / featured.taskCount} credits per task`,
+                'Beginner friendly',
+              ].map((chip) => (
+                <View key={chip} className="bg-canvas rounded-full px-3 py-1.5">
+                  <Text className="text-ink-soft text-xs font-semibold">{chip}</Text>
+                </View>
+              ))}
+            </View>
+          )}
 
-          <Button variant="primary" size="lg" onPress={start} className="mt-5 rounded-2xl">
-            <Button.Label>{context.cta}</Button.Label>
-          </Button>
+          {done ? (
+            <View className="bg-mint-soft mt-5 flex-row items-center justify-center gap-2 rounded-2xl py-4">
+              <Check size={18} color={colors.mint} strokeWidth={3} />
+              <Text className="text-mint text-base font-bold">Everyday Sounds complete</Text>
+            </View>
+          ) : (
+            <Button variant="primary" size="lg" onPress={start} className="mt-5 rounded-2xl">
+              <Button.Label>{inProgress ? 'Resume labeling' : context.cta}</Button.Label>
+            </Button>
+          )}
         </Animated.View>
 
         {/* Continue */}
         <Text className="text-ink mt-7 text-lg font-extrabold">Continue where you left off</Text>
         <Pressable
-          onPress={() => openProject(CONTINUE_PROJECT.id)}
+          onPress={onContinue}
           className="bg-card border-hairline mt-3 rounded-[24px] border p-4"
         >
           <View className="flex-row items-center justify-between">
-            <Text className="text-ink text-base font-bold">{CONTINUE_PROJECT.name}</Text>
+            <Text className="text-ink text-base font-bold">{continueCard.name}</Text>
             <ArrowRight size={18} color={colors.inkSoft} />
           </View>
           <View className="mt-3">
-            <ProgressBar progress={CONTINUE_PROJECT.completed / CONTINUE_PROJECT.total} />
+            <ProgressBar progress={continueCard.completed / continueCard.total} />
           </View>
           <View className="mt-2.5 flex-row items-center justify-between">
             <Text className="text-ink-soft text-xs font-medium">
-              {CONTINUE_PROJECT.completed} of {CONTINUE_PROJECT.total} completed
+              {continueCard.completed} of {continueCard.total} completed
             </Text>
             <View className="flex-row items-center gap-1">
               <Star size={13} color={colors.reward} fill={colors.reward} />
               <AnimatedNumber
-                value={CONTINUE_PROJECT.credits}
+                value={continueCard.credits}
                 className="text-ink text-xs font-semibold"
               />
               <Text className="text-ink-soft text-xs font-medium">credits available</Text>

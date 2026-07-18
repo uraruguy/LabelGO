@@ -172,6 +172,7 @@ export default function HandsFreeSession() {
   const correctRef = useRef(0);
   const answeredRef = useRef(0);
   const creditsRef = useRef(0);
+  const finishedRef = useRef(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const stopListenRef = useRef<(() => void) | null>(null);
   const phaseRef = useRef<Phase>('preparing');
@@ -197,8 +198,11 @@ export default function HandsFreeSession() {
   };
 
   const finish = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     clearTimers();
     stopListening();
+    stopSpeaking();
     const answered = answeredRef.current;
     const correct = correctRef.current;
     const credits = creditsRef.current;
@@ -228,6 +232,7 @@ export default function HandsFreeSession() {
 
   const commit = useCallback(
     (response: SoundResponse) => {
+      if (finishedRef.current) return;
       stopListening();
       clearTimers();
       const current = tasks[indexRef.current];

@@ -26,6 +26,7 @@ import { initPostHog } from '@/lib/posthog';
 import { registerServiceWorker } from '@/lib/registerServiceWorker';
 import { reportErrorToParent } from '@/lib/reportPreviewError';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import { Toast } from '@/components/Toast';
 
 /**
  * Custom ErrorBoundary that reports React render errors to the parent window (Bilt preview iframe)
@@ -167,6 +168,7 @@ export default function RootLayout() {
           />
         </Stack>
         <InstallPrompt />
+        <Toast />
       </HeroUINativeProvider>
     </GestureHandlerRootView>
   );

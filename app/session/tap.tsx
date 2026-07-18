@@ -51,6 +51,7 @@ export default function TapSession() {
   const correctRef = useRef(0);
   const answeredRef = useRef(0);
   const creditsRef = useRef(0);
+  const finishedRef = useRef(false);
   const [sessionCredits, setSessionCredits] = useState(0);
 
   const task = tasks[index];
@@ -67,6 +68,8 @@ export default function TapSession() {
 
   const finish = useMemo(
     () => (correct: number, answered: number, credits: number) => {
+      if (finishedRef.current) return;
+      finishedRef.current = true;
       completeSession({ projectId: project.id, answered, correct, creditsEarned: credits });
       const quality = answered > 0 ? Math.round((correct / answered) * 100) : 100;
       openComplete({
@@ -81,6 +84,7 @@ export default function TapSession() {
   );
 
   const advance = () => {
+    if (finishedRef.current) return;
     if (index + 1 >= tasks.length) {
       finish(correctRef.current, answeredRef.current, creditsRef.current);
       return;

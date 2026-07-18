@@ -3,8 +3,9 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { ProjectCard } from '@/components/ProjectCard';
-import { PROJECTS } from '@/lib/mockData';
+import { projectsWithProgress } from '@/lib/mockData';
 import type { Project, ProjectCategory, ProjectStatus } from '@/lib/types';
+import { useAppStore } from '@/lib/store';
 import { openProject } from '@/lib/navigation';
 import { selectionTick } from '@/lib/haptics';
 
@@ -27,11 +28,16 @@ const SECTIONS: { id: ProjectStatus; label: string }[] = [
 
 export default function TasksScreen() {
   const [filter, setFilter] = useState<Filter>('foryou');
+  const everydaySoundsCompleted = useAppStore((s) => s.everydaySoundsCompleted);
+  const allProjects = useMemo(
+    () => projectsWithProgress(everydaySoundsCompleted),
+    [everydaySoundsCompleted],
+  );
 
   const projects = useMemo(() => {
-    if (filter === 'foryou') return PROJECTS;
-    return PROJECTS.filter((p) => p.category === filter);
-  }, [filter]);
+    if (filter === 'foryou') return allProjects;
+    return allProjects.filter((p) => p.category === filter);
+  }, [allProjects, filter]);
 
   const sections = useMemo(
     () =>
