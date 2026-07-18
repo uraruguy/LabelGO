@@ -214,9 +214,9 @@ export default function ProfileScreen() {
               <Mic size={18} color={colors.purple} />
             </View>
             <View className="flex-1">
-              <Text className="text-ink text-sm font-semibold">Demo voice simulation</Text>
+              <Text className="text-ink text-sm font-semibold">Guided voice demo</Text>
               <Text className="text-ink-soft text-xs">
-                Runs hands-free with a scripted voice sequence so the demo always works
+                Runs hands-free with a guided voice walkthrough so it works anywhere
               </Text>
             </View>
             <Switch

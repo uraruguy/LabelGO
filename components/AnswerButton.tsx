@@ -38,10 +38,13 @@ export function AnswerButton({ answer, state, disabled, onPress }: AnswerButtonP
   const bg = state === 'correct' ? colors.mint : state === 'wrong' ? colors.danger : colors.card;
   const fg = state === 'idle' ? colors.purple : colors.white;
 
+  const dimmed = disabled && state === 'idle';
+
   const style = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     backgroundColor: withTiming(bg, { duration: 160 }),
     borderColor: withTiming(state === 'idle' ? colors.hairline : bg, { duration: 160 }),
+    opacity: withTiming(dimmed ? 0.45 : 1, { duration: 160 }),
   }));
 
   return (

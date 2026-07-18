@@ -55,7 +55,7 @@ export default function HomeScreen() {
   const messageAccent = MESSAGE_ACCENT[context.accent];
 
   // Continue card prefers a live in-progress Everyday Sounds session, else the
-  // seeded Voice Quality Check placeholder.
+  // seeded Voice Quality Check suggestion.
   const continueCard = inProgress
     ? {
         name: featured.name,

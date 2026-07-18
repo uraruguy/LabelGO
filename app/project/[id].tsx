@@ -51,7 +51,7 @@ export default function ProjectDetails() {
 
   const isHandsFree = ctx.mode === 'handsfree';
   const cta = !project.playable
-    ? 'Coming soon in demo'
+    ? 'Coming soon'
     : isHandsFree
       ? 'Start hands-free session'
       : 'Start labeling';

@@ -188,7 +188,7 @@ export default function EarningsScreen() {
               );
             })}
             <Text className="text-ink-soft mt-1 text-center text-[11px]">
-              Rewards are simulated for this hackathon demo.
+              Reward options are a preview. Redemption opens after launch.
             </Text>
           </Animated.View>
         ) : (
