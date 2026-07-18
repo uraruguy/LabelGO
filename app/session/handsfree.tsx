@@ -37,10 +37,14 @@ import { notifySuccess } from '@/lib/haptics';
 import {
   speak,
   stopSpeaking,
-  listenOnce,
-  speechRecognitionAvailable,
+  matchCommand,
+  elevenLabsAvailable,
+  transcribe,
   type VoiceCommand,
 } from '@/lib/speech';
+import { clipUrlFor } from '@/lib/clips';
+import { playClip, stopClip, releaseAudio } from '@/lib/audio';
+import { startRecording, requestMicPermission, type ActiveRecording } from '@/lib/recorder';
 
 const CREDITS_PER_TASK = 4;
 
@@ -174,11 +178,33 @@ export default function HandsFreeSession() {
   const creditsRef = useRef(0);
   const finishedRef = useRef(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const stopListenRef = useRef<(() => void) | null>(null);
+  const recordingRef = useRef<ActiveRecording | null>(null);
+  const listenTokenRef = useRef(0);
   const phaseRef = useRef<Phase>('preparing');
   const indexRef = useRef(0);
 
-  const useSim = demoVoiceSim || !speechRecognitionAvailable();
+  // Live voice needs both an ElevenLabs key and mic access. If either is
+  // missing (or the user prefers the guided walkthrough), we run the reliable
+  // guided sequence instead so the demo never dead-ends.
+  const [micGranted, setMicGranted] = useState<boolean | null>(null);
+  const useSim = demoVoiceSim || !elevenLabsAvailable() || micGranted === false;
+
+  // Request mic access once, only when the hands-free session begins.
+  useEffect(() => {
+    let cancelled = false;
+    if (demoVoiceSim || !elevenLabsAvailable()) {
+      setMicGranted(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+    void requestMicPermission().then((res) => {
+      if (!cancelled) setMicGranted(res.granted);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [demoVoiceSim]);
 
   const setPhaseSafe = useCallback((p: Phase) => {
     phaseRef.current = p;
@@ -193,8 +219,11 @@ export default function HandsFreeSession() {
     timers.current = [];
   };
   const stopListening = () => {
-    stopListenRef.current?.();
-    stopListenRef.current = null;
+    // Invalidate any in-flight recording/transcription and stop the mic.
+    listenTokenRef.current += 1;
+    const rec = recordingRef.current;
+    recordingRef.current = null;
+    if (rec) void rec.stop();
   };
 
   const finish = useCallback(() => {
@@ -203,6 +232,7 @@ export default function HandsFreeSession() {
     clearTimers();
     stopListening();
     stopSpeaking();
+    stopClip();
     const answered = answeredRef.current;
     const correct = correctRef.current;
     const credits = creditsRef.current;
@@ -263,57 +293,101 @@ export default function HandsFreeSession() {
   // without creating a definition cycle between listening and control actions.
   const handleCommandRef = useRef<(cmd: VoiceCommand) => void>(() => {});
 
+  // Guided walkthrough answer for the current task (used when live voice is
+  // unavailable or the guided demo is enabled).
+  const runGuidedAnswer = useCallback(
+    (delayMs: number) => {
+      const current = tasks[indexRef.current];
+      const answer: SoundResponse = current.ambiguous ? 'unsure' : current.answer;
+      pushTimer(
+        setTimeout(() => {
+          if (phaseRef.current !== 'listening') return;
+          setTranscript(RESPONSE_LABEL[answer]);
+          commit(answer);
+        }, delayMs),
+      );
+    },
+    [commit, tasks],
+  );
+
   const startListening = useCallback(() => {
     setPhaseSafe('listening');
     speak('What did you hear?', () => {
       if (phaseRef.current !== 'listening') return;
+
       if (useSim) {
-        // Scripted, reliable answer sequence for the demo.
-        const current = tasks[indexRef.current];
-        const answer: SoundResponse = current.ambiguous ? 'unsure' : current.answer;
+        // Reliable guided sequence when live voice isn't in play.
+        runGuidedAnswer(1500);
+        return;
+      }
+
+      // --- Live voice: record a short utterance, then transcribe with Scribe.
+      const token = ++listenTokenRef.current;
+      void startRecording().then((rec) => {
+        if (token !== listenTokenRef.current || phaseRef.current !== 'listening') {
+          void rec?.stop();
+          return;
+        }
+        if (!rec) {
+          // Mic couldn't start — fall back gracefully.
+          runGuidedAnswer(600);
+          return;
+        }
+        recordingRef.current = rec;
+        setTranscript('Listening…');
+        // Give the speaker a moment to answer, then transcribe.
         pushTimer(
           setTimeout(() => {
-            setTranscript(RESPONSE_LABEL[answer]);
-            if (phaseRef.current === 'listening') commit(answer);
-          }, 1500),
+            if (token !== listenTokenRef.current || phaseRef.current !== 'listening') return;
+            const active = recordingRef.current;
+            recordingRef.current = null;
+            if (!active) return;
+            setPhaseSafe('detected');
+            setTranscript('Recognizing…');
+            void active.stop().then(async (result) => {
+              if (token !== listenTokenRef.current || finishedRef.current) return;
+              const text = result ? await transcribe(result) : null;
+              if (token !== listenTokenRef.current || finishedRef.current) return;
+              const cmd = text ? matchCommand(text) : null;
+              if (text) setTranscript(text);
+              if (cmd) {
+                handleCommandRef.current(cmd);
+              } else {
+                // Couldn't confidently recognize — let the user retry this clip.
+                setPhaseSafe('listening');
+                setTranscript("Didn't catch that — say it again");
+                pushTimer(
+                  setTimeout(() => {
+                    if (token === listenTokenRef.current && phaseRef.current === 'listening') {
+                      startListening();
+                    }
+                  }, 900),
+                );
+              }
+            });
+          }, 2600),
         );
-      } else {
-        stopListenRef.current = listenOnce(
-          (text) => setTranscript(text),
-          (cmd) => handleCommandRef.current(cmd),
-          () => {
-            // Recognition dropped — fall back to scripted answer.
-            const current = tasks[indexRef.current];
-            const answer: SoundResponse = current.ambiguous ? 'unsure' : current.answer;
-            pushTimer(
-              setTimeout(() => {
-                if (phaseRef.current === 'listening') commit(answer);
-              }, 800),
-            );
-          },
-        );
-      }
+      });
     });
-  }, [commit, setPhaseSafe, tasks, useSim]);
+  }, [runGuidedAnswer, setPhaseSafe, useSim]);
 
-  const playClip = useCallback(() => {
+  const playTaskClip = useCallback(() => {
     setPhaseSafe('playing');
-    speak('Playing sound.', () => {
-      pushTimer(
-        setTimeout(() => {
-          if (phaseRef.current === 'playing') startListening();
-        }, 1300),
-      );
+    const current = tasks[indexRef.current];
+    // Play the real sound clip; begin listening once it finishes.
+    void playClip(clipUrlFor(current.answer), () => {
+      if (phaseRef.current === 'playing') startListening();
     });
-  }, [setPhaseSafe, startListening]);
+  }, [setPhaseSafe, startListening, tasks]);
 
   const replayClip = useCallback(() => {
     stopListening();
     clearTimers();
+    stopClip();
     setTranscript('');
     setHeard(null);
-    playClip();
-  }, [playClip]);
+    playTaskClip();
+  }, [playTaskClip]);
 
   const pauseSession = useCallback(() => {
     stopListening();
@@ -324,8 +398,8 @@ export default function HandsFreeSession() {
 
   const resumeSession = useCallback(() => {
     if (phaseRef.current !== 'paused') return;
-    playClip();
-  }, [playClip]);
+    playTaskClip();
+  }, [playTaskClip]);
 
   // Handle a recognized command (from speech or the simulation).
   const handleCommand = useCallback(
@@ -367,17 +441,19 @@ export default function HandsFreeSession() {
   useEffect(() => {
     if (phase !== 'preparing') return undefined;
     const t = setTimeout(() => {
-      if (phaseRef.current === 'preparing') playClip();
+      if (phaseRef.current === 'preparing') playTaskClip();
     }, 700);
     pushTimer(t);
     return undefined;
-  }, [phase, index, playClip]);
+  }, [phase, index, playTaskClip]);
 
   useEffect(
     () => () => {
       clearTimers();
       stopListening();
       stopSpeaking();
+      stopClip();
+      releaseAudio();
     },
     [],
   );
@@ -523,6 +599,7 @@ export default function HandsFreeSession() {
               stopListening();
               clearTimers();
               stopSpeaking();
+              stopClip();
               goNext();
             }}
             disabled={phase === 'detected' || phase === 'confirmed'}
@@ -531,7 +608,11 @@ export default function HandsFreeSession() {
         </View>
 
         <Text className="pb-1 text-center text-xs text-white/35">
-          {useSim ? 'Say “Dog”, “Baby”, or “Doorbell” — or tap a chip' : 'Listening for your voice'}
+          {useSim
+            ? 'Say “Dog”, “Baby”, or “Doorbell” — or tap a chip'
+            : phase === 'listening'
+              ? 'Speak your answer — or tap a chip'
+              : 'Listening for your voice'}
         </Text>
       </SafeAreaView>
     </LinearGradient>

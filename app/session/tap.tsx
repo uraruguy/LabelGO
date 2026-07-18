@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable, Modal } from 'react-native';
 import Animated, {
   FadeIn,
@@ -30,6 +30,8 @@ import { useAppStore } from '@/lib/store';
 import { colors } from '@/lib/theme';
 import { openComplete } from '@/lib/navigation';
 import { notifySuccess, tapLight, tapMedium } from '@/lib/haptics';
+import { clipUrlFor } from '@/lib/clips';
+import { playClip, stopClip, releaseAudio } from '@/lib/audio';
 
 const CREDITS_PER_TASK = 4;
 
@@ -56,6 +58,23 @@ export default function TapSession() {
 
   const task = tasks[index];
   const answers: SoundAnswer[] = ['dog', 'baby', 'doorbell'];
+
+  // Play the real clip for this task whenever playback is active. The sound
+  // that plays is the ground truth the user must identify.
+  useEffect(() => {
+    if (!playing) {
+      stopClip();
+      return undefined;
+    }
+    void playClip(clipUrlFor(task.answer), () => {
+      // Clip finished on its own — reflect that in the play/pause button.
+      setPlaying(false);
+    });
+    return () => stopClip();
+  }, [playing, task.answer]);
+
+  // Release the native player when leaving the session.
+  useEffect(() => () => releaseAudio(), []);
 
   // banner shown after an answer is recorded
   const good = picked !== null ? isGoodAnswer(picked, task) : false;
@@ -97,6 +116,8 @@ export default function TapSession() {
 
   const record = (response: SoundResponse) => {
     if (picked) return;
+    stopClip();
+    setPlaying(false);
     setPicked(response);
     answeredRef.current += 1;
     if (isGoodAnswer(response, task)) {
@@ -118,6 +139,7 @@ export default function TapSession() {
   };
 
   const leaveSave = () => {
+    stopClip();
     if (answeredRef.current > 0) {
       finish(correctRef.current, answeredRef.current, creditsRef.current);
     } else {
@@ -204,7 +226,10 @@ export default function TapSession() {
               <Pressable
                 onPress={() => {
                   tapLight();
-                  setPlaying(true);
+                  stopClip();
+                  setPlaying(false);
+                  // Next tick re-triggers the play effect from the clip start.
+                  setTimeout(() => setPlaying(true), 30);
                 }}
                 className="flex-row items-center gap-1.5"
               >
