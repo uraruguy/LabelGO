@@ -65,13 +65,7 @@ export function Waveform({
   return (
     <View className="flex-row items-center gap-1.5" style={{ height }}>
       {ids.map((id, i) => (
-        <Bar
-          key={id}
-          index={i}
-          active={active}
-          barClassName={barClassName}
-          height={height}
-        />
+        <Bar key={id} index={i} active={active} barClassName={barClassName} height={height} />
       ))}
     </View>
   );

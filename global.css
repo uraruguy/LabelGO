@@ -55,6 +55,8 @@
   --color-reward: oklch(0.82 0.13 71);
   --color-reward-soft: oklch(0.96 0.05 71);
   --color-danger-accent: oklch(0.68 0.17 17);
+  --color-danger: oklch(0.68 0.17 17);
+  --color-danger-soft: oklch(0.95 0.03 17);
   --color-card: oklch(1 0 0);
   --color-hairline: oklch(0.93 0.006 265);
 

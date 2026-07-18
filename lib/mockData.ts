@@ -8,6 +8,8 @@ export const CONTEXTS: AppContext[] = [
     estimate: '12 quick tasks',
     mode: 'tap',
     cta: 'Start quick labeling',
+    accent: 'purple',
+    message: 'Screen available — quick visual tasks unlocked.',
   },
   {
     id: 'commuting',
@@ -16,6 +18,8 @@ export const CONTEXTS: AppContext[] = [
     estimate: '8 easy tasks',
     mode: 'tap',
     cta: 'Start passenger mode',
+    accent: 'reward',
+    message: 'On the move — short, low-effort tasks lined up.',
   },
   {
     id: 'walking',
@@ -25,6 +29,8 @@ export const CONTEXTS: AppContext[] = [
     mode: 'handsfree',
     recommended: true,
     cta: 'Start hands-free',
+    accent: 'mint',
+    message: 'Headphones detected — perfect for audio tasks.',
   },
   {
     id: 'quiet',
@@ -33,6 +39,8 @@ export const CONTEXTS: AppContext[] = [
     estimate: '5 recording tasks',
     mode: 'record',
     cta: 'Start recording',
+    accent: 'danger',
+    message: 'Quiet space — clear recordings score higher.',
   },
 ];
 

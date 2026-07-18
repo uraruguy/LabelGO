@@ -2,6 +2,8 @@ export type ContextId = 'waiting' | 'commuting' | 'walking' | 'quiet';
 
 export type SessionMode = 'tap' | 'handsfree' | 'record';
 
+export type ContextAccent = 'purple' | 'reward' | 'mint' | 'danger';
+
 export interface AppContext {
   id: ContextId;
   title: string;
@@ -10,6 +12,10 @@ export interface AppContext {
   recommended?: boolean;
   mode: SessionMode;
   cta: string;
+  /** Contextual accent used for the card's selected state. */
+  accent: ContextAccent;
+  /** Short reassurance shown under the recommended project when selected. */
+  message: string;
 }
 
 export type ProjectCategory = 'audio' | 'images' | 'text' | 'collection';
