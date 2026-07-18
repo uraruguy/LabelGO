@@ -1,4 +1,9 @@
-import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
+import {
+  createAudioPlayer,
+  setAudioModeAsync,
+  type AudioPlayer,
+  type AudioSource,
+} from 'expo-audio';
 
 /**
  * Single-player audio controller. Guarantees only one clip plays at a time
@@ -35,7 +40,7 @@ export function primeAudio() {
   void ensureAudioMode();
 }
 
-function getPlayer(source: string): AudioPlayer {
+function getPlayer(source: AudioSource): AudioPlayer {
   if (!player) {
     player = createAudioPlayer(source, { updateInterval: 200 });
   } else {
@@ -56,7 +61,7 @@ function getPlayer(source: string): AudioPlayer {
  * Play a clip from the start. Resolves when the clip finishes naturally, is
  * stopped, or errors — so callers can chain the next phase reliably.
  */
-export async function playClip(source: string, onDone?: () => void): Promise<void> {
+export async function playClip(source: AudioSource, onDone?: () => void): Promise<void> {
   await ensureAudioMode();
   let settled = false;
   const done = () => {
