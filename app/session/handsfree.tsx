@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { Platform, View, Text, Pressable } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
@@ -609,7 +609,9 @@ export default function HandsFreeSession() {
 
         <Text className="pb-1 text-center text-xs text-white/35">
           {useSim
-            ? 'Say “Dog”, “Baby”, or “Doorbell” — or tap a chip'
+            ? Platform.OS !== 'web' && micGranted === false
+              ? 'Guided mode — live mic needs a dev build (Expo Go can’t record)'
+              : 'Say “Dog”, “Baby”, or “Doorbell” — or tap a chip'
             : phase === 'listening'
               ? 'Speak your answer — or tap a chip'
               : 'Listening for your voice'}

@@ -27,6 +27,14 @@ function getPlayer(source: string): AudioPlayer {
   } else {
     player.replace(source);
   }
+  // Ensure audible output — a replaced/fresh source can reset volume on some
+  // platforms, and iOS otherwise honors the hardware silent switch.
+  try {
+    player.volume = 1;
+    player.muted = false;
+  } catch {
+    // ignore — not all platforms expose these before load
+  }
   return player;
 }
 
