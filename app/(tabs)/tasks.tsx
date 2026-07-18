@@ -4,7 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { ProjectCard } from '@/components/ProjectCard';
 import { PROJECTS } from '@/lib/mockData';
-import type { Project, ProjectCategory } from '@/lib/types';
+import type { Project, ProjectCategory, ProjectStatus } from '@/lib/types';
 import { openProject } from '@/lib/navigation';
 import { selectionTick } from '@/lib/haptics';
 
@@ -18,6 +18,13 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: 'collection', label: 'Collection' },
 ];
 
+const SECTIONS: { id: ProjectStatus; label: string }[] = [
+  { id: 'recommended', label: 'Recommended' },
+  { id: 'inProgress', label: 'In progress' },
+  { id: 'available', label: 'Available' },
+  { id: 'completed', label: 'Completed' },
+];
+
 export default function TasksScreen() {
   const [filter, setFilter] = useState<Filter>('foryou');
 
@@ -25,6 +32,17 @@ export default function TasksScreen() {
     if (filter === 'foryou') return PROJECTS;
     return PROJECTS.filter((p) => p.category === filter);
   }, [filter]);
+
+  const sections = useMemo(
+    () =>
+      SECTIONS.map((section) => ({
+        ...section,
+        items: projects.filter((p) => p.status === section.id),
+      })).filter((s) => s.items.length > 0),
+    [projects],
+  );
+
+  let cardIndex = 0;
 
   return (
     <SafeAreaView edges={['top']} className="bg-canvas flex-1">
@@ -65,19 +83,30 @@ export default function TasksScreen() {
         </ScrollView>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerClassName="px-5 pb-8 pt-4 gap-3"
-      >
-        {projects.length === 0 ? (
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="px-5 pb-8 pt-4">
+        {sections.length === 0 ? (
           <View className="mt-16 items-center">
             <Text className="text-ink-soft text-sm">No projects in this category yet.</Text>
           </View>
         ) : (
-          projects.map((project: Project, i) => (
-            <Animated.View key={project.id} entering={FadeIn.delay(i * 60).duration(300)}>
-              <ProjectCard project={project} onPress={(p) => openProject(p.id)} />
-            </Animated.View>
+          sections.map((section) => (
+            <View key={section.id} className="mb-6">
+              <View className="mb-3 flex-row items-center justify-between">
+                <Text className="text-ink text-base font-extrabold">{section.label}</Text>
+                <Text className="text-ink-soft text-xs font-semibold">{section.items.length}</Text>
+              </View>
+              <View className="gap-3">
+                {section.items.map((project: Project) => {
+                  const delay = cardIndex * 55;
+                  cardIndex += 1;
+                  return (
+                    <Animated.View key={project.id} entering={FadeIn.delay(delay).duration(300)}>
+                      <ProjectCard project={project} onPress={(p) => openProject(p.id)} />
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            </View>
           ))
         )}
       </ScrollView>

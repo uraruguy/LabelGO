@@ -4,6 +4,7 @@ import {
   ImageIcon,
   MessageSquareText,
   ChevronRight,
+  MapPin,
   type LucideIcon,
 } from 'lucide-react-native';
 import type { Project, ProjectCategory } from '@/lib/types';
@@ -33,6 +34,9 @@ interface ProjectCardProps {
 export function ProjectCard({ project, onPress }: ProjectCardProps) {
   const Icon = CATEGORY_ICON[project.category];
   const tint = CATEGORY_TINT[project.category];
+  const inProgress = project.completedTasks > 0 && project.completedTasks < project.taskCount;
+  const done = project.completedTasks >= project.taskCount;
+  const progressPct = Math.round((project.completedTasks / project.taskCount) * 100);
 
   return (
     <Pressable
@@ -55,6 +59,26 @@ export function ProjectCard({ project, onPress }: ProjectCardProps) {
 
       <Text className="text-ink-soft mt-3 text-sm">{project.prompt}</Text>
 
+      {/* Context compatibility */}
+      <View className="bg-canvas mt-3 flex-row items-center gap-1.5 self-start rounded-full px-2.5 py-1">
+        <MapPin size={12} color={colors.purple} />
+        <Text className="text-purple text-[11px] font-semibold">{project.contextLabel}</Text>
+      </View>
+
+      {inProgress ? (
+        <View className="mt-3">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-ink-soft text-[11px] font-semibold">
+              {project.completedTasks} of {project.taskCount} completed
+            </Text>
+            <Text className="text-purple text-[11px] font-bold">{progressPct}%</Text>
+          </View>
+          <View className="bg-hairline mt-1.5 h-1.5 overflow-hidden rounded-full">
+            <View className="bg-purple h-full rounded-full" style={{ width: `${progressPct}%` }} />
+          </View>
+        </View>
+      ) : null}
+
       <View className="mt-3 flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
           <View className="bg-canvas rounded-full px-2.5 py-1">
@@ -66,7 +90,13 @@ export function ProjectCard({ project, onPress }: ProjectCardProps) {
             <Text className="text-ink-soft text-[11px] font-semibold">{project.difficulty}</Text>
           </View>
         </View>
-        <CreditBadge amount={project.credits} />
+        {done ? (
+          <View className="bg-mint-soft rounded-full px-3 py-1.5">
+            <Text className="text-mint text-[11px] font-bold">Completed</Text>
+          </View>
+        ) : (
+          <CreditBadge amount={project.credits} />
+        )}
       </View>
     </Pressable>
   );

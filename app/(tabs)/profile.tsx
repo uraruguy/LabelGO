@@ -1,4 +1,5 @@
-import { View, Text, Pressable, ScrollView, Alert, Platform } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable, ScrollView, Alert, Platform, Modal } from 'react-native';
 import { router } from 'expo-router';
 import {
   MapPin,
@@ -13,16 +14,25 @@ import {
   Flame,
   CheckCircle2,
   Mic,
+  Award,
+  Medal,
+  AudioLines,
   type LucideIcon,
 } from 'lucide-react-native';
 import { Switch } from 'heroui-native';
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { QualityRing } from '@/components/QualityRing';
-import { QUALIFICATIONS } from '@/lib/mockData';
+import { QUALIFICATIONS, QUALITY_COMPONENTS, ACHIEVEMENTS } from '@/lib/mockData';
 import { useAppStore } from '@/lib/store';
 import { colors } from '@/lib/theme';
 import { useShallow } from 'zustand/react/shallow';
-import { tapMedium } from '@/lib/haptics';
+import { tapMedium, tapLight } from '@/lib/haptics';
+
+const ACHIEVEMENT_ICON: Record<string, LucideIcon> = {
+  'first-25': Medal,
+  'audio-specialist': AudioLines,
+  streak: Flame,
+};
 
 function SectionRow({
   icon: Icon,
@@ -67,6 +77,7 @@ export default function ProfileScreen() {
         setDemoVoiceSim: s.setDemoVoiceSim,
       })),
     );
+  const [qualityOpen, setQualityOpen] = useState(false);
 
   const doReset = () => {
     tapMedium();
@@ -104,7 +115,13 @@ export default function ProfileScreen() {
         </View>
 
         {/* Quality + stats */}
-        <View className="bg-card border-hairline mt-5 flex-row items-center rounded-[24px] border p-5">
+        <Pressable
+          onPress={() => {
+            tapLight();
+            setQualityOpen(true);
+          }}
+          className="bg-card border-hairline mt-5 flex-row items-center rounded-[24px] border p-5"
+        >
           <QualityRing score={qualityScore} size={104} />
           <View className="ml-5 flex-1 gap-3">
             <View className="flex-row items-center gap-2">
@@ -121,7 +138,32 @@ export default function ProfileScreen() {
                 <Text className="text-ink-soft text-xs">Current streak</Text>
               </View>
             </View>
+            <View className="mt-1 flex-row items-center gap-1">
+              <Text className="text-purple text-xs font-bold">How quality works</Text>
+              <ChevronRight size={13} color={colors.purple} />
+            </View>
           </View>
+        </Pressable>
+
+        {/* Achievements */}
+        <Text className="text-ink mt-6 mb-2 text-lg font-extrabold">Achievements</Text>
+        <View className="flex-row gap-3">
+          {ACHIEVEMENTS.map((a) => {
+            const Icon = ACHIEVEMENT_ICON[a.id] ?? Award;
+            return (
+              <View
+                key={a.id}
+                className="bg-card border-hairline flex-1 items-center rounded-[22px] border p-3"
+              >
+                <View className="bg-purple-soft h-11 w-11 items-center justify-center rounded-full">
+                  <Icon size={20} color={colors.purple} />
+                </View>
+                <Text className="text-ink mt-2 text-center text-[12px] leading-tight font-bold">
+                  {a.title}
+                </Text>
+              </View>
+            );
+          })}
         </View>
 
         {/* Qualifications */}
@@ -198,6 +240,58 @@ export default function ProfileScreen() {
           />
         </View>
       </ScrollView>
+
+      {/* Quality score explainer */}
+      <Modal
+        visible={qualityOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setQualityOpen(false)}
+      >
+        <Pressable className="flex-1 justify-end bg-black/40" onPress={() => setQualityOpen(false)}>
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="bg-card pb-safe-offset-6 rounded-t-[28px] px-5 pt-3"
+          >
+            <View className="bg-hairline mx-auto h-1.5 w-10 rounded-full" />
+            <View className="mt-5 flex-row items-center gap-2">
+              <ShieldCheck size={20} color={colors.purple} />
+              <Text className="text-ink text-lg font-extrabold">Your quality score</Text>
+            </View>
+            <Text className="text-ink-soft mt-2 text-sm">
+              Your quality score is based on calibration tasks, consistency, and agreement on clear
+              examples. Higher quality unlocks better-paying projects.
+            </Text>
+
+            <View className="mt-5 gap-4">
+              {QUALITY_COMPONENTS.map((c) => (
+                <View key={c.id}>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-ink text-sm font-semibold">{c.label}</Text>
+                    <Text className="text-purple text-sm font-extrabold">{c.value}%</Text>
+                  </View>
+                  <View className="bg-hairline mt-1.5 h-2 overflow-hidden rounded-full">
+                    <View
+                      className="bg-purple h-full rounded-full"
+                      style={{ width: `${c.value}%` }}
+                    />
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <Pressable
+              onPress={() => {
+                tapLight();
+                setQualityOpen(false);
+              }}
+              className="bg-purple mt-6 items-center rounded-full py-3.5"
+            >
+              <Text className="text-base font-bold text-white">Got it</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

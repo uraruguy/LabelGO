@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import {
   Coins,
@@ -9,12 +9,15 @@ import {
   CheckCircle2,
   ShieldCheck,
   Calendar,
+  Info,
+  AudioLines,
+  Sparkles,
 } from 'lucide-react-native';
 import { SafeAreaView } from '@/components/ui/primitives/SafeAreaView';
 import { LinearGradient } from '@/components/ui/primitives/LinearGradient';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
-import { REWARD_OPTIONS } from '@/lib/mockData';
-import type { ActivityDay } from '@/lib/types';
+import { REWARD_OPTIONS, RECENT_ACTIVITY } from '@/lib/mockData';
+import type { ActivityDay, EarningActivity } from '@/lib/types';
 import { useAppStore } from '@/lib/store';
 import { colors } from '@/lib/theme';
 import { useShallow } from 'zustand/react/shallow';
@@ -68,6 +71,24 @@ function StatPill({
   );
 }
 
+function ActivityRow({ item }: { item: EarningActivity }) {
+  const Icon = item.kind === 'bonus' ? Sparkles : AudioLines;
+  const tint = item.kind === 'bonus' ? colors.reward : colors.purple;
+  const tintBg = item.kind === 'bonus' ? 'bg-reward-soft' : 'bg-purple-soft';
+  return (
+    <View className="flex-row items-center gap-3 px-1 py-3">
+      <View className={`h-10 w-10 items-center justify-center rounded-2xl ${tintBg}`}>
+        <Icon size={18} color={tint} />
+      </View>
+      <View className="flex-1">
+        <Text className="text-ink text-sm font-bold">{item.label}</Text>
+        <Text className="text-ink-soft text-xs">{item.when}</Text>
+      </View>
+      <Text className="text-mint text-sm font-extrabold">+{item.credits}</Text>
+    </View>
+  );
+}
+
 export default function EarningsScreen() {
   const { credits, todayCredits, weekCredits, tasksCompleted, qualityScore, activity } =
     useAppStore(
@@ -81,6 +102,7 @@ export default function EarningsScreen() {
       })),
     );
   const [tab, setTab] = useState<'rewards' | 'activity'>('rewards');
+  const [redeemOpen, setRedeemOpen] = useState(false);
   const euro = (credits * EUR_PER_CREDIT).toFixed(2);
 
   return (
@@ -104,7 +126,19 @@ export default function EarningsScreen() {
             <Text className="mb-1.5 text-lg font-semibold text-white/90">demo credits</Text>
           </View>
           <Text className="mt-1 text-sm text-white/75">Equivalent reward preview: €{euro}</Text>
+          <View className="mt-4 flex-row items-center gap-2 rounded-2xl bg-white/15 px-3 py-2">
+            <Info size={14} color={colors.white} />
+            <Text className="flex-1 text-xs text-white/85">
+              Credits are a demo reward preview. No real money is involved.
+            </Text>
+          </View>
         </LinearGradient>
+
+        {/* Daily / weekly progress */}
+        <View className="mt-4 flex-row gap-3">
+          <StatPill icon={TrendingUp} label="Today" value={`${todayCredits}`} />
+          <StatPill icon={Coins} label="This week" value={`${weekCredits}`} />
+        </View>
 
         {/* Tabs */}
         <View className="bg-card border-hairline mt-4 flex-row rounded-2xl border p-1">
@@ -129,11 +163,14 @@ export default function EarningsScreen() {
         {tab === 'rewards' ? (
           <Animated.View entering={FadeIn.duration(250)} className="mt-4 gap-3">
             {REWARD_OPTIONS.map((option) => {
-              const affordable = credits >= option.cost;
               const Icon = option.kind === 'donate' ? Heart : Gift;
               return (
-                <View
+                <Pressable
                   key={option.id}
+                  onPress={() => {
+                    tapLight();
+                    setRedeemOpen(true);
+                  }}
                   className="bg-card border-hairline flex-row items-center gap-3 rounded-[22px] border p-4"
                 >
                   <View className="bg-reward-soft h-12 w-12 items-center justify-center rounded-2xl">
@@ -143,18 +180,10 @@ export default function EarningsScreen() {
                     <Text className="text-ink text-base font-bold">{option.title}</Text>
                     <Text className="text-ink-soft text-xs">{option.cost} credits</Text>
                   </View>
-                  <Pressable
-                    disabled={!affordable}
-                    onPress={tapLight}
-                    className={`rounded-full px-4 py-2 ${affordable ? 'bg-purple' : 'bg-hairline'}`}
-                  >
-                    <Text
-                      className={`text-xs font-bold ${affordable ? 'text-white' : 'text-ink-soft'}`}
-                    >
-                      {affordable ? 'Redeem' : 'Locked'}
-                    </Text>
-                  </Pressable>
-                </View>
+                  <View className="bg-purple rounded-full px-4 py-2">
+                    <Text className="text-xs font-bold text-white">Redeem</Text>
+                  </View>
+                </Pressable>
               );
             })}
             <Text className="text-ink-soft mt-1 text-center text-[11px]">
@@ -172,16 +201,59 @@ export default function EarningsScreen() {
             </View>
 
             <View className="mt-3 flex-row gap-3">
-              <StatPill icon={TrendingUp} label="Today" value={`${todayCredits}`} />
-              <StatPill icon={Coins} label="This week" value={`${weekCredits}`} />
-            </View>
-            <View className="mt-3 flex-row gap-3">
               <StatPill icon={CheckCircle2} label="Tasks completed" value={`${tasksCompleted}`} />
               <StatPill icon={ShieldCheck} label="Avg quality" value={`${qualityScore}%`} />
+            </View>
+
+            {/* Recent activity */}
+            <Text className="text-ink mt-6 mb-1 text-lg font-extrabold">Recent activity</Text>
+            <View className="bg-card border-hairline mt-2 rounded-[24px] border px-4 py-1">
+              {RECENT_ACTIVITY.map((item, i) => (
+                <View key={item.id}>
+                  {i > 0 ? <View className="bg-hairline h-px" /> : null}
+                  <ActivityRow item={item} />
+                </View>
+              ))}
             </View>
           </Animated.View>
         )}
       </ScrollView>
+
+      {/* Reward redemption sheet */}
+      <Modal
+        visible={redeemOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setRedeemOpen(false)}
+      >
+        <Pressable className="flex-1 justify-end bg-black/40" onPress={() => setRedeemOpen(false)}>
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="bg-card pb-safe-offset-6 rounded-t-[28px] px-5 pt-3"
+          >
+            <View className="bg-hairline mx-auto h-1.5 w-10 rounded-full" />
+            <View className="bg-reward-soft mt-5 h-14 w-14 items-center justify-center self-center rounded-full">
+              <Gift size={26} color={colors.reward} />
+            </View>
+            <Text className="text-ink mt-4 text-center text-lg font-extrabold">
+              Reward redemption is disabled
+            </Text>
+            <Text className="text-ink-soft mt-2 text-center text-sm">
+              Reward redemption is disabled in this hackathon demo. Your credits show the reward you
+              would earn in the full product.
+            </Text>
+            <Pressable
+              onPress={() => {
+                tapLight();
+                setRedeemOpen(false);
+              }}
+              className="bg-purple mt-6 items-center rounded-full py-3.5"
+            >
+              <Text className="text-base font-bold text-white">Got it</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

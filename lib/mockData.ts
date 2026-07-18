@@ -1,4 +1,12 @@
-import type { ActivityDay, AppContext, LabelTask, Project } from './types';
+import type {
+  Achievement,
+  ActivityDay,
+  AppContext,
+  EarningActivity,
+  LabelTask,
+  Project,
+  QualityComponent,
+} from './types';
 
 export const CONTEXTS: AppContext[] = [
   {
@@ -57,6 +65,9 @@ export const PROJECTS: Project[] = [
     estMinutes: 2,
     description: 'Help an audio AI recognize common sounds.',
     playable: true,
+    status: 'recommended',
+    completedTasks: 0,
+    contextLabel: 'Hands-free',
   },
   {
     id: 'voice-quality',
@@ -71,6 +82,9 @@ export const PROJECTS: Project[] = [
     description:
       'Rate short voice clips as clean or noisy so models learn what good audio sounds like.',
     playable: false,
+    status: 'inProgress',
+    completedTasks: 3,
+    contextLabel: 'Quiet room required',
   },
   {
     id: 'product-match',
@@ -84,6 +98,9 @@ export const PROJECTS: Project[] = [
     estMinutes: 4,
     description: 'Confirm whether a product photo matches its listing to improve visual search.',
     playable: false,
+    status: 'available',
+    completedTasks: 0,
+    contextLabel: 'Great while waiting',
   },
   {
     id: 'response-ranking',
@@ -97,6 +114,25 @@ export const PROJECTS: Project[] = [
     estMinutes: 5,
     description: 'Compare two AI answers and pick the more helpful one to align future responses.',
     playable: false,
+    status: 'available',
+    completedTasks: 0,
+    contextLabel: 'Passenger friendly',
+  },
+  {
+    id: 'street-signs',
+    name: 'Street Signs',
+    category: 'images',
+    categoryLabel: 'Image labeling',
+    prompt: 'Tag visible road signs',
+    taskCount: 10,
+    credits: 40,
+    difficulty: 'Beginner',
+    estMinutes: 3,
+    description: 'Outline and label road signs so navigation models read the street correctly.',
+    playable: false,
+    status: 'completed',
+    completedTasks: 10,
+    contextLabel: 'Great while waiting',
   },
 ];
 
@@ -160,4 +196,38 @@ export const QUALIFICATIONS = [
   { id: 'slovenian', name: 'Slovenian Language', status: 'Verified' as const },
   { id: 'image', name: 'Image Basics', status: 'Passed' as const },
   { id: 'advanced', name: 'Advanced Evaluation', status: 'Locked' as const },
+];
+
+export const RECENT_ACTIVITY: EarningActivity[] = [
+  { id: 'a1', label: 'Everyday Sounds', credits: 32, when: 'Today', kind: 'session' },
+  { id: 'a2', label: 'Voice Quality Check', credits: 12, when: 'Yesterday', kind: 'session' },
+  { id: 'a3', label: 'Product Match', credits: 24, when: 'Thursday', kind: 'session' },
+  { id: 'a4', label: 'Quality bonus', credits: 10, when: 'Wednesday', kind: 'bonus' },
+];
+
+export const QUALITY_COMPONENTS: QualityComponent[] = [
+  { id: 'calibration', label: 'Calibration accuracy', value: 98 },
+  { id: 'consistency', label: 'Consistency', value: 95 },
+  { id: 'agreement', label: 'Trusted agreement', value: 96 },
+];
+
+export const ACHIEVEMENTS: Achievement[] = [
+  {
+    id: 'first-25',
+    title: 'First 25 tasks',
+    description: 'Completed your first 25 labeling tasks',
+    earned: true,
+  },
+  {
+    id: 'audio-specialist',
+    title: 'Audio specialist',
+    description: 'Strong accuracy on audio projects',
+    earned: true,
+  },
+  {
+    id: 'streak',
+    title: 'Four-day streak',
+    description: 'Labeled on four days in a row',
+    earned: true,
+  },
 ];

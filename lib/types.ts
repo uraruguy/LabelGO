@@ -21,6 +21,9 @@ export interface AppContext {
 export type ProjectCategory = 'audio' | 'images' | 'text' | 'collection';
 export type Difficulty = 'Beginner' | 'Intermediate';
 
+/** Where a project sits in the user's task list. */
+export type ProjectStatus = 'recommended' | 'inProgress' | 'available' | 'completed';
+
 export interface Project {
   id: string;
   name: string;
@@ -33,6 +36,33 @@ export interface Project {
   description: string;
   estMinutes: number;
   playable: boolean;
+  /** Grouping used on the Tasks screen. */
+  status: ProjectStatus;
+  /** Tasks already completed (for the in-progress / completed indicators). */
+  completedTasks: number;
+  /** Short label describing the best context for this project. */
+  contextLabel: string;
+}
+
+export interface EarningActivity {
+  id: string;
+  label: string;
+  credits: number;
+  when: string;
+  kind: 'session' | 'bonus';
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  earned: boolean;
+}
+
+export interface QualityComponent {
+  id: string;
+  label: string;
+  value: number;
 }
 
 export type SoundAnswer = 'dog' | 'baby' | 'doorbell';
